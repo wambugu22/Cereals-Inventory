@@ -1,4 +1,16 @@
 <?php
+session_start();
+if (!isset($_SESSION['admin_logged_in'])) {
+    header('Location: ../login.php');
+    exit;
+}
+
+// Auto-logout after 10 minutes (600 seconds)
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > 600) {
+    header('Location: ../logout.php');
+    exit;
+}
+$_SESSION['last_activity'] = time();
 include '../includes/header.php';
 
 // Get filter parameters
@@ -63,6 +75,7 @@ $totals = $conn->query($totals_sql)->fetch_assoc();
                 <th>Total</th>
                 <th>Customer</th>
                 <th>Notes</th>
+                <th>Receipt</th>
             </tr>
         </thead>
         <tbody>
@@ -76,6 +89,11 @@ $totals = $conn->query($totals_sql)->fetch_assoc();
                 <td><strong><?php echo format_currency($sale['total_amount']); ?></strong></td>
                 <td><?php echo $sale['customer_name'] ?: 'Walk-in'; ?></td>
                 <td><?php echo $sale['notes']; ?></td>
+                <td>
+                    <a href="receipt.php?id=<?php echo $sale['id']; ?>" target="_blank" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                        🖨️ Receipt
+                    </a>
+                </td>
             </tr>
             <?php endwhile; ?>
         </tbody>

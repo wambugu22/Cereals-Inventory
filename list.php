@@ -1,4 +1,16 @@
 <?php
+session_start();
+if (!isset($_SESSION['admin_logged_in'])) {
+    header('Location: ../login.php');
+    exit;
+}
+
+// Auto-logout after 10 minutes (600 seconds)
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > 600) {
+    header('Location: ../logout.php');
+    exit;
+}
+$_SESSION['last_activity'] = time();
 include '../includes/header.php';
 
 // Handle delete
